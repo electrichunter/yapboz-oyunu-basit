@@ -177,7 +177,7 @@
             this.button1.Location = new System.Drawing.Point(32, 456);
             this.button1.Margin = new System.Windows.Forms.Padding(4);
             this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(166, 81);
+            this.button1.Size = new System.Drawing.Size(183, 81);
             this.button1.TabIndex = 9;
             this.button1.Text = "DOGRULA";
             this.button1.UseVisualStyleBackColor = true;
@@ -291,7 +291,7 @@
             // button2
             // 
             this.button2.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
-            this.button2.Location = new System.Drawing.Point(223, 456);
+            this.button2.Location = new System.Drawing.Point(241, 456);
             this.button2.Margin = new System.Windows.Forms.Padding(4);
             this.button2.Name = "button2";
             this.button2.Size = new System.Drawing.Size(166, 81);
@@ -303,13 +303,14 @@
             // button3
             // 
             this.button3.Font = new System.Drawing.Font("Microsoft Sans Serif", 16.2F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(162)));
-            this.button3.Location = new System.Drawing.Point(417, 456);
+            this.button3.Location = new System.Drawing.Point(430, 456);
             this.button3.Margin = new System.Windows.Forms.Padding(4);
             this.button3.Name = "button3";
             this.button3.Size = new System.Drawing.Size(166, 81);
             this.button3.TabIndex = 21;
             this.button3.Text = "SIFIRLA";
             this.button3.UseVisualStyleBackColor = true;
+            this.button3.Click += new System.EventHandler(this.button3_Click);
             // 
             // Form1
             // 

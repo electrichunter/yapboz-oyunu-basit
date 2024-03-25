@@ -7,25 +7,25 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace Captcha
 {
     public partial class Form1 : Form
     {
-
         private PictureBox[] pictureBoxes;
-        private System.Windows.Forms.TextBox[] textBoxes;
-        private Dictionary<PictureBox, System.Windows.Forms.TextBox> pictureBoxTextBoxPairs;
+        private TextBox[] textBoxes;
+        private Dictionary<PictureBox, TextBox> pictureBoxTextBoxPairs;
         private Point startingPoint;
+        private Random random = new Random();
+        private Dictionary<PictureBox, Point> lastPositions = new Dictionary<PictureBox, Point>();
 
         public Form1()
         {
             InitializeComponent();
             pictureBoxes = new PictureBox[] { pictureBox1, pictureBox2, pictureBox3, pictureBox4, pictureBox5, pictureBox6, pictureBox7, pictureBox8, pictureBox9 };
-            textBoxes = new System.Windows.Forms.TextBox[] { textBox1, textBox2, textBox3, textBox4, textBox5, textBox6, textBox7, textBox8, textBox9 };
+            textBoxes = new TextBox[] { textBox1, textBox2, textBox3, textBox4, textBox5, textBox6, textBox7, textBox8, textBox9 };
 
-            pictureBoxTextBoxPairs = new Dictionary<PictureBox, System.Windows.Forms.TextBox>();
+            pictureBoxTextBoxPairs = new Dictionary<PictureBox, TextBox>();
             for (int i = 0; i < pictureBoxes.Length; i++)
             {
                 pictureBoxTextBoxPairs.Add(pictureBoxes[i], textBoxes[i]);
@@ -33,13 +33,8 @@ namespace Captcha
                 pictureBoxes[i].MouseDown += PictureBox_MouseDown;
                 pictureBoxes[i].MouseMove += PictureBox_MouseMove;
                 pictureBoxes[i].MouseUp += PictureBox_MouseUp;
-                for (int index = 0; index < pictureBoxes.Length; index++)
-                {
-                    pictureBoxes[index].Tag = pictureBoxes[index].Left; // PictureBox'ın sol konumunu Tag olarak ayarlayın
-                }
+                pictureBoxes[i].Tag = pictureBoxes[i].Left; // PictureBox'ın sol konumunu Tag olarak ayarlayın
             }
-
-
         }
 
         private void PictureBox_MouseDown(object sender, MouseEventArgs e)
@@ -47,7 +42,6 @@ namespace Captcha
             PictureBox pictureBox = (PictureBox)sender;
             startingPoint = e.Location;
             pictureBox.BringToFront();
-
         }
 
         private void PictureBox_MouseMove(object sender, MouseEventArgs e)
@@ -55,24 +49,25 @@ namespace Captcha
             PictureBox pictureBox = (PictureBox)sender;
             if (e.Button == MouseButtons.Left)
             {
-                pictureBox.Left += e.X - startingPoint.X;
-                pictureBox.Top += e.Y - startingPoint.Y;
+                int deltaX = e.X - startingPoint.X;
+                int deltaY = e.Y - startingPoint.Y;
+
+                // Kaydırmadan önceki konumu kaydet
+                if (!lastPositions.ContainsKey(pictureBox))
+                {
+                    lastPositions[pictureBox] = pictureBox.Location;
+                }
+
+                pictureBox.Left += deltaX;
+                pictureBox.Top += deltaY;
             }
         }
 
         private void PictureBox_MouseUp(object sender, MouseEventArgs e)
         {
-           
-        }
-
-        private void TextBox_DragEnter(object sender, DragEventArgs e)
-        {
-            e.Effect = DragDropEffects.None;
-        }
-
-        private void TextBox_DragDrop(object sender, DragEventArgs e)
-        {
-            e.Effect = DragDropEffects.None;
+            // Son sürüklenen PictureBox'ın konumunu kaydet
+            PictureBox pictureBox = (PictureBox)sender;
+            pictureBox.Tag = pictureBox.Left;
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -105,9 +100,6 @@ namespace Captcha
             }
         }
 
-
-        private Random random = new Random();
-
         private void button2_Click(object sender, EventArgs e)
         {
             // Her PictureBox'ı başlangıç konumuna döndür
@@ -119,34 +111,43 @@ namespace Captcha
 
             // PictureBox'ları rastgele sırayla karıştır
             ShufflePictureBoxes();
+        }
 
-
-           void ShufflePictureBoxes()
+        private void ShufflePictureBoxes()
+        {
+            // PictureBox'ları rastgele bir sırayla karıştırmak için Fisher-Yates shuffle algoritmasını kullanın
+            int n = pictureBoxes.Length;
+            while (n > 1)
             {
-                // PictureBox'ları rastgele bir sırayla karıştırmak için Fisher-Yates shuffle algoritmasını kullanın
-                int n = pictureBoxes.Length;
-                while (n > 1)
-                {
-                    n--;
-                    int k = random.Next(n + 1);
-                    // Swap işlemi
-                    var tempPictureBox = pictureBoxes[k];
-                    pictureBoxes[k] = pictureBoxes[n];
-                    pictureBoxes[n] = tempPictureBox;
-                }
+                n--;
+                int k = random.Next(n + 1);
+                // Swap işlemi
+                var tempPictureBox = pictureBoxes[k];
+                pictureBoxes[k] = pictureBoxes[n];
+                pictureBoxes[n] = tempPictureBox;
+            }
 
-                // PictureBox'ların yerlerini güncelle
-                for (int i = 0; i < pictureBoxes.Length; i++)
-                {
-                    pictureBoxes[i].Left = startingPoint.X + (i % 3) * pictureBoxes[i].Width;
-                    pictureBoxes[i].Top = startingPoint.Y + (i / 3) * pictureBoxes[i].Height;
-                }
+            // PictureBox'ların yerlerini güncelle
+            for (int i = 0; i < pictureBoxes.Length; i++)
+            {
+                pictureBoxes[i].Left = startingPoint.X + (i % 3) * pictureBoxes[i].Width;
+                pictureBoxes[i].Top = startingPoint.Y + (i / 3) * pictureBoxes[i].Height;
             }
         }
-    }
-    }
 
-            
-        
-    
+        private void button3_Click(object sender, EventArgs e)
+        {
+            // Her PictureBox'ı önceki konumuna geri al
+            foreach (var pictureBox in pictureBoxes)
+            {
+                if (lastPositions.ContainsKey(pictureBox))
+                {
+                    pictureBox.Location = lastPositions[pictureBox];
+                }
+            }
 
+            // Geri alma tamamlandıktan sonra önceki konumları temizle
+            lastPositions.Clear();
+        }
+    }
+}
